@@ -1,8 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 const colors = {
-  dark: '#2d3748',
-  medium: '#4a5568',
-  light: '#718096'
+  'black-1': '#020a12',
+  'black-2': '#081829',
+  'black-3': '#0a396b',
+  "blue-1": "#a2d8fa",
+  "blue-2": "#5F85DB",
+  "blue-link": "#02c8f0"
 }
 
 module.exports = {
@@ -42,10 +45,17 @@ module.exports = {
       desktop: { min: '1025px' },
       'hover-hover': { raw: '(hover: hover)' }
     },
-    extend: { colors: colors }
+    extend: {
+      colors: colors, dark: {
+        css: {
+          color: 'white',
+        },
+      },
+    }
   },
   plugins: [
     require('tailwind-scrollbar-hide'),
-    require('tailwind-scrollbar')({ nocompatible: true })
+    require('tailwind-scrollbar')({ nocompatible: true }),
+    require('@tailwindcss/line-clamp'),
   ]
 }

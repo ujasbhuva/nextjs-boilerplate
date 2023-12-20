@@ -1,18 +1,24 @@
 import axios, { AxiosError, AxiosPromise, AxiosRequestConfig } from "axios";
 import Router from "next/router";
-import { getToken } from "./auth";
+import { clearAllCookie, getToken } from "./auth";
 
-export const authPages = ["/", "/login", "/signup", "/generated-content"];
+export const authPages = [
+  "/login",
+  "/signup",
+  "/reset-password",
+  "/forgot-password",
+  "/verify-mail",
+];
 
 let cancelTokenSource = axios.CancelToken.source();
 
 export default function authRequest(
   options: AxiosRequestConfig,
-  token?: string
+  token?: string,
 ): AxiosPromise<any> {
   token = token ?? getToken();
   if (!token) {
-    Router.push("/login");
+    Router.push("/");
     return Promise.reject(new AxiosError("Invalid Token", "401"));
   }
   cancelTokenSource = axios.CancelToken.source();
@@ -21,6 +27,22 @@ export default function authRequest(
     headers: { Authorization: `Bearer ${token}` },
     cancelToken: cancelTokenSource.token,
   });
+  request.interceptors.response.use(
+    function (res) {
+      return res;
+    },
+    function (error) {
+      if (
+        error?.response?.status === 401 &&
+        token &&
+        !!!authPages?.find((path) => path === Router.pathname)
+      ) {
+        clearAllCookie();
+        Router.push("/");
+      }
+      return Promise.reject(error);
+    }
+  );
   return request(options);
 }
 
